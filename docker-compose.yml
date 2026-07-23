@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  ip-redirector:
+    build: .
+    container_name: ip-redirector
+    restart: unless-stopped
+    ports:
+      - "5175:5175"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - PORT=5175

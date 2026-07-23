@@ -6,7 +6,12 @@ const app = express();
 app.use(express.json()); // to parse JSON bodies
 
 // Setup SQLite DB
-const dbPath = path.join(__dirname, 'data.db');
+const fs = require('fs');
+const dataDir = path.join(__dirname, 'data');
+if (!fs.existsSync(dataDir)) {
+  fs.mkdirSync(dataDir, { recursive: true });
+}
+const dbPath = path.join(dataDir, 'data.db');
 const db = new Database(dbPath);
 
 // Create table if it doesn't exist
