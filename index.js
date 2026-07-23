@@ -60,7 +60,7 @@ app.get('/redirect', (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5175;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Redirector App listening on port ${PORT}`);
 });
