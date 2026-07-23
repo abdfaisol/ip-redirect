@@ -1,0 +1,13 @@
+{
+  "name": "ip-redirector",
+  "version": "1.0.0",
+  "description": "Redirects to local pc IP",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.1.2",
+    "express": "^4.19.2"
+  }
+}
