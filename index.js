@@ -25,7 +25,7 @@ db.exec(`
 // Insert default row if DB is fresh
 const row = db.prepare('SELECT count(*) as count FROM config').get();
 if (row.count === 0) {
-  db.prepare('INSERT INTO config (id, ip_address) VALUES (1, "")').run();
+  db.prepare("INSERT INTO config (id, ip_address) VALUES (1, '')").run();
 }
 
 // POST endpoint to update the IP address
