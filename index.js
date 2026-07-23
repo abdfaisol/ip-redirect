@@ -57,8 +57,9 @@ app.get('*', (req, res) => {
 
     // Path yang diketik user di browser hp (misal: /link)
     const targetPath = req.originalUrl;
-    const targetUrl = `http://${record.ip_address}:6060${targetPath}`;
-
+    
+    // Kita gunakan trik JS agar Cloudflare "Automatic HTTPS Rewrites" tidak otomatis
+    // mengubah http:// menjadi https:// di dalam string HTML.
     const html = `
       <!DOCTYPE html>
       <html lang="en">
@@ -72,10 +73,16 @@ app.get('*', (req, res) => {
         </style>
       </head>
       <body>
-        <iframe src="${targetUrl}"></iframe>
+        <iframe id="manga-frame"></iframe>
         <script>
-          // Untuk mengupdate URL bar di HP saat halaman di dalam iframe berubah,
-          // Iframe (manga-scraper) harus mengirim pesan ke parent ini.
+          // Build URL dengan Javascript agar tidak ketahuan Cloudflare
+          const ip = "${record.ip_address}";
+          const path = "${targetPath}";
+          const finalUrl = 'http://' + ip + ':6060' + path;
+          
+          document.getElementById('manga-frame').src = finalUrl;
+
+          // Untuk mengupdate URL bar di HP saat halaman di dalam iframe berubah
           window.addEventListener('message', (e) => {
             if (e.data && e.data.type === 'URL_CHANGE' && e.data.url) {
               window.history.replaceState(null, '', e.data.url);
