@@ -46,8 +46,8 @@ app.post('/update-ip-address', (req, res) => {
   }
 });
 
-// GET endpoint to redirect to the latest IP
-app.get('/redirect', (req, res) => {
+// GET endpoint for all other routes to serve the iframe
+app.get('*', (req, res) => {
   try {
     const record = db.prepare('SELECT ip_address FROM config WHERE id = 1').get();
     
@@ -55,9 +55,37 @@ app.get('/redirect', (req, res) => {
       return res.status(404).send("<h1>IP Address not set yet. Please wait for the worker to update.</h1>");
     }
 
-    // Redirect to http://<ip>:6060/link
-    const targetUrl = `http://${record.ip_address}:6060/link`;
-    res.redirect(302, targetUrl);
+    // Path yang diketik user di browser hp (misal: /link)
+    const targetPath = req.originalUrl;
+    const targetUrl = `http://${record.ip_address}:6060${targetPath}`;
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Manga Scraper</title>
+        <style>
+          body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; }
+          iframe { width: 100%; height: 100%; border: none; }
+        </style>
+      </head>
+      <body>
+        <iframe src="${targetUrl}"></iframe>
+        <script>
+          // Untuk mengupdate URL bar di HP saat halaman di dalam iframe berubah,
+          // Iframe (manga-scraper) harus mengirim pesan ke parent ini.
+          window.addEventListener('message', (e) => {
+            if (e.data && e.data.type === 'URL_CHANGE' && e.data.url) {
+              window.history.replaceState(null, '', e.data.url);
+            }
+          });
+        </script>
+      </body>
+      </html>
+    `;
+    res.send(html);
   } catch (err) {
     console.error('Error reading IP:', err);
     res.status(500).send("Internal Server Error");
